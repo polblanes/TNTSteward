@@ -100,6 +100,47 @@ namespace TNTStewardProgram.Modules
             await Context.User.SendMessageAsync("", false, builder.Build());
         }
 
+        [Command("clear")]
+        [Alias("Clear", "CLEAR", "cLEAR")]
+        [Remarks("Elimina el numero de mensajes introducido a continuacion del comando (clear número). Si no se introduce ningún número, se eliminará el último mensage del canal.")]
+        [RequireBotPermission(GuildPermission.ManageMessages)]
+        [RequireUserPermission(GuildPermission.ManageMessages)]
+        public async Task Clear(int delete)
+        {
+            IGuildUser Bot = await Context.Guild.GetUserAsync(Context.Client.CurrentUser.Id);
+            if (!Bot.GetPermissions(Context.Channel as ITextChannel).ManageMessages)
+            {
+                await Context.User.SendMessageAsync("El bot no tiene los permisos suficientes para eliminar mensages.");
+                return;
+            }
+           
+            var GuildUser = await Context.Guild.GetUserAsync(Context.User.Id);
+            if (!GuildUser.GetPermissions(Context.Channel as ITextChannel).ManageMessages)
+            {
+                await Context.User.SendMessageAsync("No tienes los permisos suficientes para eliminar mensages");
+                return;
+            }
+
+            if (delete <= 100)
+            {
+                var messagesToDelete = await Context.Channel.GetMessagesAsync(delete + 1).Flatten();
+                await Context.Channel.DeleteMessagesAsync(messagesToDelete);
+                if (delete == 1)
+                {
+                    await Context.Channel.SendMessageAsync($"`{Context.User.Username} ha eliminado 1 mensage`");
+
+                }
+                else
+                {
+                    await Context.Channel.SendMessageAsync($"`{Context.User.Username} ha eliminado {delete} mensages");
+                }
+            }
+            else
+            {
+                await Context.Channel.SendMessageAsync("Lo siento, no puedes eliminar más de 100 mensages.");
+            }
+        }
+
         /*
         [Command("welcome")]
         public async Task SetWelcomeChannel()
