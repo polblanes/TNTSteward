@@ -144,26 +144,50 @@ namespace TNTStewardProgram.Modules
             }
         }
 
+
+        //Comando ban para banear al usuario mencionado
         [Command("ban")]
+        [Alias("Ban", "BAN")]
         [Summary("ban @Username")]
-        [Remarks("Comando para banear al usuario mencionado.")]
+        [Remarks("Comando para banear al usuario mencionado. Requiere mencionar a un usuario y a continuación escribir la razón del baneo.")]
         [RequireUserPermission(GuildPermission.BanMembers)]
         [RequireBotPermission(GuildPermission.BanMembers)]
         public async Task BanAsync(SocketGuildUser user = null, [Remainder] string reason = null)
         {
-            if (user == null) throw new ArgumentException("Debes mencionar al usiario a banear.");
-            if (string.IsNullOrWhiteSpace(reason)) throw new ArgumentException("Debes escribir una razón para el baneo.");
+            if (user == null) throw new ArgumentException("Debes mencionar al usuario a banear.");
+            if (string.IsNullOrWhiteSpace(reason)) throw new ArgumentException("Debes escribir una razón para banear al usuario.");
 
             var gld = Context.Guild as SocketGuild;
             var embed = new EmbedBuilder(); //Inicializa el embed builder
             embed.WithColor(new Color(0x4900ff)); //Color del embed
-            embed.Title = $"{user.Username} ha sido baneado."; //A quién se ha baneado
+            embed.Title = $"{user.Username} ha sido baneado."; //A quién se ha baneado (titular del mensage)
             embed.Description = $"Nombre de usuario: {user.Username}\nServidor: {user.Guild.Name}\nBaneado por: {Context.User.Mention}\nRazón: {reason}"; //Valores del embed
 
             await gld.AddBanAsync(user); //baneo al usuario
             await Context.Channel.SendMessageAsync("", false, embed); //envio del mensage embed
         }
 
+
+        //Comando kick para echar al usuario mencionado
+        [Command("kick")]
+        [Alias("Kick", "KICK")]
+        [Remarks("Comando para echar al usuario mencionado. Requiere mencionar a un usuario y a continuación escribir la razón del kick.")]
+        [RequireBotPermission(GuildPermission.KickMembers)] ///Needed BotPerms///
+        [RequireUserPermission(GuildPermission.KickMembers)] ///Needed User Perms///
+        public async Task KickAsync(SocketGuildUser user, [Remainder] string reason)
+        {
+            if (user == null) throw new ArgumentException("Debes mencionar al usuario a echar.");
+            if (string.IsNullOrWhiteSpace(reason)) throw new ArgumentException("Debes escribir una razón para echar al usuario.");
+
+            var gld = Context.Guild as SocketGuild;
+            var embed = new EmbedBuilder(); //Inicializa el embed builder
+            embed.WithColor(new Color(0x4900ff)); //Color del embed
+            embed.Title = $" {user.Username} has been kicked from {user.Guild.Name}"; //A quién se ha echado (titular del mensage)
+            embed.Description = $"**Username: **{user.Username}\n**Guild Name: **{user.Guild.Name}\n**Kicked by: **{Context.User.Mention}!\n**Reason: **{reason}"; //Valores del embed
+
+            await user.KickAsync(); //kick al usuario
+            await Context.Channel.SendMessageAsync("", false, embed); //envio del mensage embed
+        }
         /*
         [Command("welcome")]
         public async Task SetWelcomeChannel()
