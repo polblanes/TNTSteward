@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using Discord;
 using Discord.Commands;
+using Discord.WebSocket;
 using System.Threading.Tasks;
 
 namespace TNTStewardProgram.Modules
@@ -100,12 +101,14 @@ namespace TNTStewardProgram.Modules
             await Context.User.SendMessageAsync("", false, builder.Build());
         }
 
+
+        //Comando clear para eliminar n mensages
         [Command("clear")]
         [Alias("Clear", "CLEAR", "cLEAR")]
         [Remarks("Elimina el numero de mensajes introducido a continuacion del comando (clear número). Si no se introduce ningún número, se eliminará el último mensage del canal.")]
         [RequireBotPermission(GuildPermission.ManageMessages)]
         [RequireUserPermission(GuildPermission.ManageMessages)]
-        public async Task Clear(int delete)
+        public async Task Clear(int delete = 0)
         {
             IGuildUser Bot = await Context.Guild.GetUserAsync(Context.Client.CurrentUser.Id);
             if (!Bot.GetPermissions(Context.Channel as ITextChannel).ManageMessages)
@@ -139,6 +142,26 @@ namespace TNTStewardProgram.Modules
             {
                 await Context.Channel.SendMessageAsync("Lo siento, no puedes eliminar más de 100 mensages.");
             }
+        }
+
+        [Command("ban")]
+        [Summary("ban @Username")]
+        [Remarks("Comando para banear al usuario mencionado.")]
+        [RequireUserPermission(GuildPermission.BanMembers)]
+        [RequireBotPermission(GuildPermission.BanMembers)]
+        public async Task BanAsync(SocketGuildUser user = null, [Remainder] string reason = null)
+        {
+            if (user == null) throw new ArgumentException("Debes mencionar al usiario a banear.");
+            if (string.IsNullOrWhiteSpace(reason)) throw new ArgumentException("Debes escribir una razón para el baneo.");
+
+            var gld = Context.Guild as SocketGuild;
+            var embed = new EmbedBuilder(); //Inicializa el embed builder
+            embed.WithColor(new Color(0x4900ff)); //Color del embed
+            embed.Title = $"{user.Username} ha sido baneado."; //A quién se ha baneado
+            embed.Description = $"Nombre de usuario: {user.Username}\nServidor: {user.Guild.Name}\nBaneado por: {Context.User.Mention}\nRazón: {reason}"; //Valores del embed
+
+            await gld.AddBanAsync(user); //baneo al usuario
+            await Context.Channel.SendMessageAsync("", false, embed); //envio del mensage embed
         }
 
         /*
