@@ -9,10 +9,18 @@ namespace TNTStewardProgram.Modules
 {
     public class TestModule : ModuleBase
     {
-        [Command("Test")]
+        [Command("test")]
         public async Task TestCommand(String repeat)
         {
             await Context.Channel.SendMessageAsync(repeat);
         }
+
+        /*
+        [Command("welcome")]
+        public async Task SetWelcomeChannel()
+        {
+            await
+        }
+        */
     }
 }
