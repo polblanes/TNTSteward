@@ -12,6 +12,8 @@ namespace TNTStewardProgram.Modules
     {
         private CommandService _service;
 
+        private EzEmbed ezEmbed = new EzEmbed();
+
         public TestModule(CommandService service)           /* Create a constructor for the commandservice dependency */
         {
             _service = service;
@@ -188,6 +190,33 @@ namespace TNTStewardProgram.Modules
             await user.KickAsync(); //kick al usuario
             await Context.Channel.SendMessageAsync("", false, embed); //envio del mensage embed
         }
+
+        /*
+        //Comando para ver los colores disponibles para ezembed
+        [Command("embedcolors")]
+        [Alias("Embedcolors", "embedColors", "EmbedColors", "EMBEDCOLORS")]
+        [Remarks("Comando para recibir una lista de los colores disponibles para el comando embed y embedfooter.")]
+        public async Task ListEmbedColors()
+        {
+            string colores = "";
+            foreach (string m in ezEmbed.colores)
+            {
+                colores += m;
+                colores += "\n";
+            }
+            ezEmbed.CreateBasicEmbed("aqua", "Los colores disponibles para el comando embed són:", colores);
+            await ezEmbed.SendEmbed(Context.User);
+        }
+
+
+        //Comando para crear y enviar un mensage embed simple
+        [Command("embed")]
+        [Alias("Embed", "EMBED")]
+        [Remarks("Comando para enviar un mensage embed.")]
+        public async Task SendEmbedMsg()
+        {
+
+        }*/
         /*
         [Command("welcome")]
         public async Task SetWelcomeChannel()
