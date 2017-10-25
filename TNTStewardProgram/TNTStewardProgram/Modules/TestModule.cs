@@ -98,7 +98,7 @@ namespace TNTStewardProgram.Modules
                     });
                     count++;
                 }
-                
+
             }
             await Context.User.SendMessageAsync("", false, builder.Build());
         }
@@ -118,7 +118,7 @@ namespace TNTStewardProgram.Modules
                 await Context.User.SendMessageAsync("El bot no tiene los permisos suficientes para eliminar mensages.");
                 return;
             }
-           
+
             var GuildUser = await Context.Guild.GetUserAsync(Context.User.Id);
             if (!GuildUser.GetPermissions(Context.Channel as ITextChannel).ManageMessages)
             {
@@ -217,6 +217,145 @@ namespace TNTStewardProgram.Modules
         {
 
         }*/
+
+        //Comando infobot para recibir la informacion referente al bot
+        [Command("infobot")]
+        [Alias("Infobot", "INFOBOT", "InfoUser")]
+        [Remarks("Muestra la información del bot.")]
+        public async Task Info()
+        {
+            var embed = new EmbedBuilder();
+            var application = await Context.Client.GetApplicationInfoAsync(); //Version de la aplicacion 
+            embed.ImageUrl = application.IconUrl;  //Icono del bot
+            embed.WithColor(new Color(0x4900ff)) //Color del embed
+                .AddField(y =>  //Nuevo campo
+                {
+                    y.Name = "Propietario";  //Titulo del campo
+                    y.Value = application.Owner.Username; application.Owner.Id.ToString();  //Nombre del propietario
+                    y.IsInline = false;
+                })
+                .AddField(y =>
+                {
+                    y.Name = "Versión de Discord.net";  //Titulo del campo
+                    y.Value = DiscordConfig.Version;  //Version de las librerias discord del bot
+                    y.IsInline = true;
+                })
+                .AddField(y =>
+                {
+                    y.Name = "Servidores";
+                    string servers = "";
+                    foreach (IGuild guild in (Context.Client as DiscordSocketClient).Guilds)
+                    {
+                        servers += guild.ToString() + "\n  ";
+                    }
+                    y.Value = "TNT-Steward está en " + (Context.Client as DiscordSocketClient).Guilds.Count.ToString() + " servidores. \nLos servidores son:\n  " + servers;
+                    y.IsInline = false;
+                })
+                .AddField(y =>
+                {
+                    y.Name = "Cantidad de usuarios";
+                    int numero = 0;
+                    foreach (IGuild guild in (Context.Client as DiscordSocketClient).Guilds)
+                    {
+                        IReadOnlyCollection<IGuildUser> users = guild.GetUsersAsync().Result;
+                        foreach (IGuildUser user in users)
+                        {
+                            numero++;
+                        }
+                    }
+                    y.Value = numero.ToString();
+                    y.IsInline = false;
+                })
+                .AddField(y =>
+                {
+                    y.Name = "Cantidad de canales";
+                    int numero = 0;
+                    foreach (IGuild guild in (Context.Client as DiscordSocketClient).Guilds)
+                    {
+                        IReadOnlyCollection<IGuildChannel> users = guild.GetChannelsAsync().Result;
+                        foreach (IGuildChannel user in users)
+                        {
+                            numero++;
+                        }
+                    }
+                    y.Value = numero.ToString();
+                    y.IsInline = false;
+                });
+            await this.ReplyAsync("", embed: embed);
+        }
+
+        //Comando infouser para recibir informacion de un usuario
+        [Command("infouser")]
+        [Alias("Infouser", "INFOUSER", "InfoUser", "userinfo", "uinfo", "USERINFO", "UserInfo", "Userinfo", "UINFO", "usrinfo", "infousr")]
+        [Remarks("Muestra la informacion del usuario mencionado.")]
+        public async Task UserInfo(IGuildUser user)
+        {
+        
+                var application = await Context.Client.GetApplicationInfoAsync();
+                var thumbnailurl = user.GetAvatarUrl();
+                var date = $"{user.CreatedAt.Month}/{user.CreatedAt.Day}/{user.CreatedAt.Year}";
+                var auth = new EmbedAuthorBuilder()
+                {
+                    Name = user.Username,
+                    IconUrl = thumbnailurl,
+                };
+                var embed = new EmbedBuilder()
+
+                {
+                    Color = new Color(29, 140, 209),
+                    Author = auth
+                };
+                var us = user as SocketGuildUser;
+
+                var D = us.Username;
+
+                var A = us.Discriminator;
+                var T = us.Id;
+                var S = date;
+                var C = us.Status;
+                var CC = us.JoinedAt;
+                var O = us.Game;
+                embed.Title = $"Información de usuario de {D}";
+                embed.Description = $"Nombre de usuario: **{D}**\nDiscriminator: **{A}**\nID de usuario: **{T}**\nFecha de creación: **{S}**\nEstado: **{C}**\nFecha de entrada al servidor: **{CC}**\nJugando: **{O}**";
+                await ReplyAsync("", false, embed.Build());
+        }
+
+        //Comando serverinfo para recibir informacion del servidor
+        [Command("infoserver")]
+        [Alias("Infoserver", "INFOSERVER", "InfoServer", "serverinfo", "sinfo", "SERVERINFO", "ServerInfo", "Serverinfo", "SINFO", "servinfo", "infoserv")]
+        [Remarks("Muestra la informacion del servidor.")]
+        public async Task GuildInfo()
+        {
+            EmbedBuilder embedBuilder;
+            embedBuilder = new EmbedBuilder();
+            embedBuilder.WithColor(new Color(0, 71, 171));
+
+            var gld = Context.Guild as SocketGuild;
+            var client = Context.Client as DiscordSocketClient;
+
+            if (!string.IsNullOrWhiteSpace(gld.IconUrl))  //Icono del server.
+                embedBuilder.ThumbnailUrl = gld.IconUrl;
+            var O = gld.Owner.Username; //Username del propietario del server.
+
+            var V = gld.VoiceRegionId; //Región del server.
+            var C = gld.CreatedAt; //Fecha de creación del server.
+            var N = gld.DefaultMessageNotifications; //Notificaciones predeterminadas del server.
+            var R = gld.Roles; //Roles del server.
+            var VL = gld.VerificationLevel; //Nivel de verificacion del server.
+            var XD = "";
+            foreach (IRole role in R)
+            {
+                XD += "  " + role.Name.ToString() + "\n";
+            }
+            var X = gld.MemberCount; //Cantidad de usuarios del server
+            var Z = client.ConnectionState; //Estado de la conexión
+
+            embedBuilder.Title = $"{gld.Name}: Información del Servidor"; //Titulo del embed
+            embedBuilder.Description = $"Propietario: **{O}**\nRegión: **{V}**\nCreado: **{C}**\nNotificaciones: **{N}**\nVerificación: **{VL}**\nRoles: \n**{XD}**Members: **{X}**\nConntection state: **{Z}**\n\n"; //Mensage embed
+            await ReplyAsync("", false, embedBuilder); //Envio del embed
+
+        }
+
         /*
         [Command("welcome")]
         public async Task SetWelcomeChannel()
@@ -226,3 +365,4 @@ namespace TNTStewardProgram.Modules
         */
     }
 }
+
