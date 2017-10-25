@@ -20,8 +20,9 @@ namespace TNTStewardProgram.Modules
         }
 
         [Command("test")]
-        [Remarks("Test command")]
-        public async Task TestCommand(String repeat)
+        [Name("test <texto a repetir>")]
+        [Remarks("Responde con el mismo texto que se le envia")]
+        public async Task TestCommand([Remainder]String repeat)
         {
             await Context.Channel.SendMessageAsync(repeat);
         }
@@ -29,6 +30,7 @@ namespace TNTStewardProgram.Modules
 
         //comando help sin parametros
         [Command("help")]
+        [Name("help")]
         [Alias("Help", "HELP", "hELP")]
         [Remarks("Muestra una lista de todos los comandos disponibles por modulo")]
         public async Task HelpAsync()
@@ -47,7 +49,7 @@ namespace TNTStewardProgram.Modules
                 {
                     var result = await cmd.CheckPreconditionsAsync(Context); /* comprobacion */
                     if (result.IsSuccess)
-                        description += $"{prefix}{cmd.Name}\n"; /* si pasa la comprobacion, añadimos el prefijo y el nombre del comando a la descripcion del embed */
+                        description += $"{prefix}{cmd.Name}\n  - {cmd.Remarks}\n\n"; /* si pasa la comprobacion, añadimos el prefijo y el nombre del comando a la descripcion del embed */
                 }
 
                 if (!string.IsNullOrWhiteSpace(description)) /* Si el modulo no estaba vacio, añadimos un campo en que vertir la descripcion del embed */
@@ -66,7 +68,8 @@ namespace TNTStewardProgram.Modules
 
         //comando help con un comando como parametro
         [Command("help")]
-        [Remarks("Shows what a specific command does and what parameters it takes.")]
+        [Name("help <comando>")]
+        [Remarks("Muestra la descripción específica del comando introducido.")]
         public async Task HelpAsync(string command)
         {
             var result = _service.Search(Context, command);
@@ -92,7 +95,7 @@ namespace TNTStewardProgram.Modules
 
                     builder.AddField(x =>
                     {
-                        x.Name = prefix + match.Alias;
+                        x.Name = prefix + match.Command.Name;
                         x.Value = $"Descripción: {cmd.Remarks}";
                         x.IsInline = false;
                     });
@@ -106,8 +109,9 @@ namespace TNTStewardProgram.Modules
 
         //Comando clear para eliminar n mensages
         [Command("clear")]
+        [Name("clear <número de mensages>")]
         [Alias("Clear", "CLEAR", "cLEAR")]
-        [Remarks("Elimina el numero de mensajes introducido a continuacion del comando (clear número). Si no se introduce ningún número, se eliminará el último mensage del canal.")]
+        [Remarks("Elimina el numero de mensajes introducido. Si no se introduce ningún número, se eliminará el último mensage del canal.")]
         [RequireBotPermission(GuildPermission.ManageMessages)]
         [RequireUserPermission(GuildPermission.ManageMessages)]
         public async Task Clear(int delete = 0)
@@ -149,6 +153,7 @@ namespace TNTStewardProgram.Modules
 
         //Comando ban para banear al usuario mencionado
         [Command("ban")]
+        [Name("ban <@usuario>")]
         [Alias("Ban", "BAN")]
         [Summary("ban @Username")]
         [Remarks("Comando para banear al usuario mencionado. Requiere mencionar a un usuario y a continuación escribir la razón del baneo.")]
@@ -172,6 +177,7 @@ namespace TNTStewardProgram.Modules
 
         //Comando kick para echar al usuario mencionado
         [Command("kick")]
+        [Name("kick <@usuario>")]
         [Alias("Kick", "KICK")]
         [Remarks("Comando para echar al usuario mencionado. Requiere mencionar a un usuario y a continuación escribir la razón del kick.")]
         [RequireBotPermission(GuildPermission.KickMembers)] ///Needed BotPerms///
@@ -220,6 +226,7 @@ namespace TNTStewardProgram.Modules
 
         //Comando infobot para recibir la informacion referente al bot
         [Command("infobot")]
+        [Name("infobot")]
         [Alias("Infobot", "INFOBOT", "InfoUser")]
         [Remarks("Muestra la información del bot.")]
         public async Task Info()
@@ -286,11 +293,11 @@ namespace TNTStewardProgram.Modules
 
         //Comando infouser para recibir informacion de un usuario
         [Command("infouser")]
+        [Name("infouser <@usuario>")]
         [Alias("Infouser", "INFOUSER", "InfoUser", "userinfo", "uinfo", "USERINFO", "UserInfo", "Userinfo", "UINFO", "usrinfo", "infousr")]
         [Remarks("Muestra la informacion del usuario mencionado.")]
         public async Task UserInfo(IGuildUser user)
-        {
-        
+        {        
                 var application = await Context.Client.GetApplicationInfoAsync();
                 var thumbnailurl = user.GetAvatarUrl();
                 var date = $"{user.CreatedAt.Month}/{user.CreatedAt.Day}/{user.CreatedAt.Year}";
@@ -322,6 +329,7 @@ namespace TNTStewardProgram.Modules
 
         //Comando serverinfo para recibir informacion del servidor
         [Command("infoserver")]
+        [Name("infoserver")]
         [Alias("Infoserver", "INFOSERVER", "InfoServer", "serverinfo", "sinfo", "SERVERINFO", "ServerInfo", "Serverinfo", "SINFO", "servinfo", "infoserv")]
         [Remarks("Muestra la informacion del servidor.")]
         public async Task GuildInfo()
@@ -353,14 +361,27 @@ namespace TNTStewardProgram.Modules
             embedBuilder.Title = $"{gld.Name}: Información del Servidor"; //Titulo del embed
             embedBuilder.Description = $"Propietario: **{O}**\nRegión: **{V}**\nCreado: **{C}**\nNotificaciones: **{N}**\nVerificación: **{VL}**\nRoles: \n**{XD}**Members: **{X}**\nConntection state: **{Z}**\n\n"; //Mensage embed
             await ReplyAsync("", false, embedBuilder); //Envio del embed
-
         }
 
         /*
         [Command("welcome")]
+        [Name("welcome")]
+        [RequireUserPermission(GuildPermission.ManageChannels)]
+        [Remarks("Establece el canal de mensages de bienvenida.")]
         public async Task SetWelcomeChannel()
         {
-            await
+            //TODO: actualizar _welcomeChannel en CommandHandler
+            await Context.Channel.SendMessageAsync("Canal " + Context.Channel.Name.ToString() + " es ahora el canal de bienvenida.");
+        }
+        
+        [Command("wnotify")]
+        [Name("wnotify")]
+        [RequireUserPermission(GuildPermission.ManageChannels)]
+        [Remarks("Establece el canal de notificación de entrada y salida de usuarios (para administradores).")]
+        public async Task SetWNotifyChannel()
+        {
+            //TODO: actualizar _wNotifyChannel en CommandHandler
+            await Context.Channel.SendMessageAsync("Canal " + Context.Channel.Name.ToString() + " es ahora el canal de notificación de entrada y salida de usuarios.");
         }
         */
     }

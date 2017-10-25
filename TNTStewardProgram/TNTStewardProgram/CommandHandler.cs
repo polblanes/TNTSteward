@@ -16,10 +16,10 @@ namespace TNTStewardProgram
         private CommandService _service;
 
         //En welcomeChannel se daran mensages de bienvenida a los nuevos usuarios y se informara de manera informal del abandono de servidor de usuarios
-        private SocketTextChannel welcomeChannel;
+        private SocketTextChannel _welcomeChannel;
 
         //En wNotifyChannel se notificara de manera formal la entrada y salida de usuarios del servidor
-        private SocketTextChannel wNotifyChannel;
+        private SocketTextChannel _wNotifyChannel;
 
         public CommandHandler(DiscordSocketClient client)
         {
@@ -71,16 +71,16 @@ namespace TNTStewardProgram
         {
             await _client.SetGameAsync("TNT-Europe Administration");
 
-            welcomeChannel = _client.GetChannel(372398584844517379) as SocketTextChannel;
+            _welcomeChannel = _client.GetChannel(372398584844517379) as SocketTextChannel;
 
-            wNotifyChannel = _client.GetChannel(372462368153927682) as SocketTextChannel;
+            _wNotifyChannel = _client.GetChannel(372462368153927682) as SocketTextChannel;
         }
 
         
         private async Task AnnounceUserJoined(SocketGuildUser user)
         {
-            if (welcomeChannel != null) await welcomeChannel.SendMessageAsync(user.Mention + " ~ Bienvenido a TNT-Europe! Esperamos que lo pases genial, camarada " + user.Username + "!");
-            if (wNotifyChannel != null) await wNotifyChannel.SendMessageAsync("Nuevo miembro en TNT-Europe: " + user.Mention);
+            if (_welcomeChannel != null) await _welcomeChannel.SendMessageAsync(user.Mention + " ~ Bienvenido a TNT-Europe! Esperamos que lo pases genial, camarada " + user.Username + "!");
+            if (_wNotifyChannel != null) await _wNotifyChannel.SendMessageAsync("Nuevo miembro en TNT-Europe: " + user.Mention);
 
             foreach (IRole role in user.Guild.Roles)
             {
@@ -94,8 +94,8 @@ namespace TNTStewardProgram
 
         private async Task AnnounceUserLeft(SocketGuildUser user)
         {
-            if (welcomeChannel != null) await welcomeChannel.SendMessageAsync(" ~ " + user.Username + " ha abandonado el servidor. Esperemos que le vaya bien en bronce.");
-            if (wNotifyChannel != null) await wNotifyChannel.SendMessageAsync("Miembro ha abandonado TNT-Europe: " + user.Mention);
+            if (_welcomeChannel != null) await _welcomeChannel.SendMessageAsync(" ~ " + user.Username + " ha abandonado el servidor. Esperemos que le vaya bien en bronce.");
+            if (_wNotifyChannel != null) await _wNotifyChannel.SendMessageAsync("Miembro ha abandonado TNT-Europe: " + user.Mention);
         }
 
 
@@ -108,13 +108,13 @@ namespace TNTStewardProgram
         //Setter de welcomeChannel
         public void SetWelcomeChannel(SocketTextChannel channel)
         {
-            welcomeChannel = channel;
+            _welcomeChannel = channel;
         }
 
         //Setter de wNotifyChannel
         public void SetWNotifyChannel(SocketTextChannel channel)
         {
-            wNotifyChannel = channel;
+            _wNotifyChannel = channel;
         }
     }
 }
